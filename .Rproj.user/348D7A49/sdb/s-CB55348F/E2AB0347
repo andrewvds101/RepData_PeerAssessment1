@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "## Set working directory and load necessary packages\nsetwd(\"/Users/Andrew/Library/Mobile Documents/com~apple~CloudDocs/Reproducible research/Assignment 1/RepData_PeerAssessment1\")\nlibrary(dplyr)\nlibrary(reshape2)\n## Read in data\nactivity <- read.csv(\"activity.csv\")\nactivity$date <- as.Date(as.character(activity$date),format = \"%Y-%m-%d\")\n# Aggregate into daily data\nsteps <- group_by(activity,date) %>% summarise(TotalSteps=sum(steps,na.rm=TRUE))\n\n# Plot histogram of total steps each day\nhist(steps$TotalSteps,main = \"Total Daily Steps\",xlab = \"Steps\",col = \"red\")\n\ndaily <- group_by(activity,interval) %>% summarise(AvgSteps=mean(steps,na.rm=TRUE))\n##plot(daily$interval,daily$TotalSteps,type = \"l\",main = \"Average number of steps across 5 minute intervals\",xlab = \"5 minute interval\",ylab = \"Average number of steps\")\n\nactivity2 <- activity\nfor(i in 1:length(activity2$steps)) {\n        if(is.na(activity2$steps[i])) {\n                activity2$steps[i]=daily$AvgSteps[activity2$interval[i]==daily$interval]\n        }\n}\nsum(is.na(activity2$steps))\n\nsteps2 <- group_by(activity2,date) %>% summarise(TotalSteps=sum(steps))\nhist(steps2$TotalSteps,main = \"Total Daily Steps\",xlab = \"Steps\",col = \"green\")\n\nfor(j in 1:length(activity2$steps)) {\n        if(weekdays(activity2$date[j])==\"Saturday\" | weekdays(activity2$date[j])==\"Sunday\") {\n                activity2$dayInd[j] <- \"Weekend\"\n        } else activity2$dayInd[j] <- \"Weekday\"\n}\nhead(activity2)\nactivity2$dayInd <- as.factor(activity2$dayInd)\nactivityWd <- activity2[activity2$dayInd==\"Weekday\",]\ndailyWd <- group_by(activityWd,interval) %>% summarise(AvgSteps=mean(steps))\n\nactivityWe <- activity2[activity2$dayInd==\"Weekend\",]\ndailyWe <- group_by(activityWe,interval) %>% summarise(AvgSteps=mean(steps))\n\nactivity3 <- merge(dailyWd,dailyWe,by=\"interval\")\nnames(activity3) <- c(\"interval\",\"Weekdays\",\"Weekends\")\n\nactivity4 <- cbind(activity3$interval,melt(activity3[,2:3]))\nnames(activity4) <- c(\"interval\",\"dayInd\",\"AvgSteps\")\nactivity4$dayInd <- as.factor(activity4$dayInd)\n",
+    "created" : 1495331036329.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1779673421",
+    "id" : "E2AB0347",
+    "lastKnownWriteTime" : 1495432291,
+    "last_content_update" : 1495432291643,
+    "path" : "~/Library/Mobile Documents/com~apple~CloudDocs/Reproducible research/Assignment 1/RepData_PeerAssessment1/activitydata.R",
+    "project_path" : "activitydata.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

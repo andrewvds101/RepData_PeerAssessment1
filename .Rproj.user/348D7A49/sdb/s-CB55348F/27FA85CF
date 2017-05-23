@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Assignment 1\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\n## Setup\nSet working directory and load necessary packages\n```{R Setup}\nsetwd(\"/Users/Andrew/Library/Mobile Documents/com~apple~CloudDocs/Reproducible research/Assignment 1/RepData_PeerAssessment1\")\nlibrary(dplyr)\nlibrary(reshape2)\nlibrary(ggplot2)\n```\nRead in and process data\n```{R read in data}\nactivity <- read.csv(\"activity.csv\")\nactivity$date <- as.Date(as.character(activity$date),format = \"%Y-%m-%d\")\n```\n## Part 1: Total steps per day\n\n1. Histogram of total steps per day\n```{R hist - total daily steps}\nsteps <- group_by(activity,date) %>% summarise(TotalSteps=sum(steps,na.rm=TRUE))\nhist(steps$TotalSteps,main = \"Total Daily Steps\",xlab = \"Steps\",col = \"red\")\n```\n\nThe mean number of steps per day is:\n```{R mean}\nmean(steps$TotalSteps)\n```\n\nThe median number of steps per day is:\n```{R median}\nmedian(steps$TotalSteps)\n```\n\n## Average daily activity pattern\nPlot of averge number of steps by 5 minute intervals\n```{R}\ndaily <- group_by(activity,interval) %>% summarise(AvgSteps=mean(steps,na.rm=TRUE))\nplot(daily$interval,daily$AvgSteps,type = \"l\",main = \"Average number of steps across 5 minute intervals\",xlab = \"5 minute interval\",ylab = \"Average number of steps\")\n```\n\nThe 5 minute interval with the highest number of steps, on average is:\n```{R}\ndaily$interval[which.max(daily$AvgSteps)]\n```\n\n## Imputing missing values\nTotal number of missing values:\n```{R}\nsum(is.na(activity$steps))\n```\n\nImpute missing values in a new dataset\n```{R}\nactivity2 <- activity\nfor(i in 1:length(activity2$steps)) {\n        if(is.na(activity2$steps[i])) {\n                activity2$steps[i]=daily$AvgSteps[activity2$interval[i]==daily$interval]\n        }\n}\nsum(is.na(activity2$steps))\n```\n\nCreate a histogrm of the new dataset with imputed values\n```{R}\nsteps2 <- group_by(activity2,date) %>% summarise(TotalSteps=sum(steps))\nhist(steps2$TotalSteps,main = \"Total Daily Steps\",xlab = \"Steps\",col = \"green\")\n```\n\nThe mean number of steps per day for the new dataset is:\n```{R}\nmean(steps2$TotalSteps)\n```\n\nThe median number of steps per day for the new dataset is:\n```{R}\nmedian(steps2$TotalSteps)\n```\n\n## Differences in activity patterns between weekdays and weekends\n\nCreate a factor variable indicating whether a day is a weekday or weekend\n```{R}\nfor(j in 1:length(activity2$steps)) {\n        if(weekdays(activity2$date[j])==\"Saturday\" | weekdays(activity2$date[j])==\"Sunday\") {\n                activity2$dayInd[j] <- \"Weekend\"\n        } else activity2$dayInd[j] <- \"Weekday\"\n}\nactivity2$dayInd <- as.factor(activity2$dayInd)\n```\n\nCreate a panel plot of the average number of steps on weekdays and weekends\n```{R}\nactivityWd <- activity2[activity2$dayInd==\"Weekday\",]\ndailyWd <- group_by(activityWd,interval) %>% summarise(AvgSteps=mean(steps))\n\nactivityWe <- activity2[activity2$dayInd==\"Weekend\",]\ndailyWe <- group_by(activityWe,interval) %>% summarise(AvgSteps=mean(steps))\n\nactivity3 <- merge(dailyWd,dailyWe,by=\"interval\")\nnames(activity3) <- c(\"interval\",\"Weekdays\",\"Weekends\")\n\nactivity4 <- cbind(activity3$interval,melt(activity3[,2:3]))\nnames(activity4) <- c(\"interval\",\"dayInd\",\"AvgSteps\")\nactivity4$dayInd <- as.factor(activity4$dayInd)\n\nqplot(interval,AvgSteps,data=activity4,facets = .~dayInd,geom = c(\"line\"))\n```\n\n```{R}\n\n```\n\n```{R}\n\n```",
+    "created" : 1495343901269.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3300582325",
+    "id" : "27FA85CF",
+    "lastKnownWriteTime" : 1495433466,
+    "last_content_update" : 1495433466081,
+    "path" : "~/Library/Mobile Documents/com~apple~CloudDocs/Reproducible research/Assignment 1/RepData_PeerAssessment1/Assignment1.Rmd",
+    "project_path" : "Assignment1.Rmd",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
